@@ -1,0 +1,198 @@
+extends ../layout
+
+block styles
+  link(rel="stylesheet", href="/css/pedidos.css")
+
+block content
+  .pedidos-cola
+    .header-actions
+      h2 Cola de Pedidos en Tiempo Real
+      .filter-buttons
+        button.btn.btn-filter.active(data-filter="all") Todos
+        button.btn.btn-filter(data-filter="pendiente") Pendientes
+        button.btn.btn-filter(data-filter="en_preparacion") En Preparación
+        button.btn.btn-filter(data-filter="listo") Listos
+    
+    #colaPedidos.cola-pedidos
+      p.text-muted Cargando pedidos...
+    
+    #modalPedido.modal(style="display: none;")
+      .modal-content
+        .modal-header
+          h3 Detalle del Pedido
+          button.modal-close ✕
+        .modal-body
+          #detallePedido
+        .modal-footer
+          button.btn.btn-secondary.modal-close Cerrar
+
+block scripts
+  script(src="/js/realtime.js")
+  script.
+    let filtroActual = 'all';
+    
+    // Manejar filtros
+    document.querySelectorAll('.btn-filter').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.btn-filter').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        filtroActual = btn.dataset.filter;
+        cargarPedidos();
+      });
+    });
+    
+    // Función para cargar pedidos
+    async function cargarPedidos() {
+      try {
+        const token = document.cookie.split('token=')[1]?.split(';')[0];
+        let url = '/api/pedidos';
+        
+        if (filtroActual !== 'all') {
+          url += `?estado=${filtroActual}`;
+        }
+        
+        const response = await fetch(url, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        
+        if (response.ok) {
+          const { pedidos } = await response.json();
+          renderPedidos(pedidos.filter(p => p.estado !== 'entregado' && p.estado !== 'cancelado'));
+        }
+      } catch (error) {
+        console.error('Error al cargar pedidos:', error);
+      }
+    }
+    
+    // Función para renderizar pedidos
+    function renderPedidos(pedidos) {
+      const container = document.getElementById('colaPedidos');
+      
+      if (pedidos.length === 0) {
+        container.innerHTML = '<p class="text-muted">No hay pedidos activos</p>';
+        return;
+      }
+      
+      container.innerHTML = pedidos.map(pedido => {
+        const minutosEspera = calcularMinutosEspera(pedido.created_at);
+        const colorClase = obtenerColorClase(minutosEspera);
+        
+        return `
+          <div class="pedido-card ${colorClase}" data-pedido-id="${pedido.id}">
+            <div class="pedido-header">
+              <h3>${pedido.numero_pedido}</h3>
+              <span class="badge badge-${pedido.tipo}">${formatearTipo(pedido.tipo)}</span>
+            </div>
+            <div class="pedido-body">
+              <p><strong>Estado:</strong> ${formatearEstado(pedido.estado)}</p>
+              <p><strong>Cliente:</strong> ${pedido.cliente_nombre || 'Mostrador'}</p>
+              <p><strong>Total:</strong> $${parseFloat(pedido.total).toFixed(2)}</p>
+              <p><strong>Tiempo:</strong> ${minutosEspera} minutos</p>
+              ${pedido.observaciones ? `<p class="observaciones"><strong>Obs:</strong> ${pedido.observaciones}</p>` : ''}
+            </div>
+            <div class="pedido-actions">
+              ${getAccionesHTML(pedido)}
+            </div>
+          </div>
+        `;
+      }).join('');
+      
+      // Agregar event listeners
+      agregarEventListeners();
+    }
+    
+    // Calcular minutos de espera
+    function calcularMinutosEspera(createdAt) {
+      const ahora = new Date();
+      const creacion = new Date(createdAt);
+      return Math.floor((ahora - creacion) / 1000 / 60);
+    }
+    
+    // Obtener clase de color según tiempo
+    function obtenerColorClase(minutos) {
+      if (minutos >= 30) return 'urgente';
+      if (minutos >= 15) return 'advertencia';
+      return 'normal';
+    }
+    
+    // Formatear tipo
+    function formatearTipo(tipo) {
+      const tipos = {
+        'mostrador': 'Mostrador',
+        'uber_eats': 'Uber Eats',
+        'rappi': 'Rappi',
+        'didi_food': 'Didi Food'
+      };
+      return tipos[tipo] || tipo;
+    }
+    
+    // Formatear estado
+    function formatearEstado(estado) {
+      const estados = {
+        'pendiente': 'Pendiente',
+        'en_preparacion': 'En Preparación',
+        'listo': 'Listo',
+        'entregado': 'Entregado',
+        'cancelado': 'Cancelado'
+      };
+      return estados[estado] || estado;
+    }
+    
+    // Generar HTML de acciones según estado
+    function getAccionesHTML(pedido) {
+      const token = document.cookie.split('token=')[1]?.split(';')[0];
+      
+      switch(pedido.estado) {
+        case 'pendiente':
+          return `<button class="btn btn-primary btn-sm" onclick="cambiarEstado('${pedido.id}', 'en_preparacion')">Iniciar Preparación</button>`;
+        case 'en_preparacion':
+          return `<button class="btn btn-success btn-sm" onclick="cambiarEstado('${pedido.id}', 'listo')">Marcar Listo</button>`;
+        case 'listo':
+          return `<button class="btn btn-info btn-sm" onclick="cambiarEstado('${pedido.id}', 'entregado')">Entregar</button>`;
+        default:
+          return '';
+      }
+    }
+    
+    // Cambiar estado de pedido
+    async function cambiarEstado(pedidoId, nuevoEstado) {
+      try {
+        const token = document.cookie.split('token=')[1]?.split(';')[0];
+        const response = await fetch(`/api/pedidos/${pedidoId}/estado`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ estado: nuevoEstado })
+        });
+        
+        if (response.ok) {
+          cargarPedidos();
+        } else {
+          alert('Error al actualizar estado');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Error al actualizar estado');
+      }
+    }
+    
+    // Agregar event listeners
+    function agregarEventListeners() {
+      document.querySelectorAll('.pedido-card').forEach(card => {
+        card.addEventListener('click', (e) => {
+          if (!e.target.classList.contains('btn')) {
+            // Mostrar detalles del pedido
+          }
+        });
+      });
+    }
+    
+    // Cargar pedidos al inicio
+    cargarPedidos();
+    
+    // Recargar cada 30 segundos
+    setInterval(cargarPedidos, 30000);

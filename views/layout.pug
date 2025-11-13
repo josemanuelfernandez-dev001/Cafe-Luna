@@ -1,0 +1,46 @@
+doctype html
+html(lang="es")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport", content="width=device-width, initial-scale=1.0")
+    title= title || 'Café Luna'
+    link(rel="stylesheet", href="/css/main.css")
+    block styles
+  body
+    if user
+      nav.navbar
+        .navbar-brand
+          h1 ☕ Café Luna
+        .navbar-user
+          span Hola, #{user.nombre}
+          button#btnLogout.btn.btn-secondary Cerrar Sesión
+      
+      .container
+        aside.sidebar
+          ul.menu
+            li
+              a(href="/dashboard") 📊 Dashboard
+            li
+              a(href="/pedidos/crear") ➕ Crear Pedido
+            li
+              a(href="/pedidos/cola") 📋 Cola de Pedidos
+            li
+              a(href="/productos") 🍰 Productos
+            if user.rol === 'admin'
+              li
+                a(href="/productos/nuevo") ➕ Nuevo Producto
+            li
+              a(href="/inventario") 📦 Inventario
+            li
+              a(href="/reportes/ventas-diarias") 📈 Reportes
+            if user.rol === 'admin'
+              li
+                a(href="/usuarios") 👥 Usuarios
+        
+        main.content
+          block content
+    else
+      block content
+    
+    block scripts
+    script(src="/js/auth.js")

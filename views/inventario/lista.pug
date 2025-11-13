@@ -1,0 +1,160 @@
+extends ../layout
+
+block content
+  .inventario-lista
+    .header-actions
+      h2 Inventario
+      .actions
+        button.btn.btn-primary(onclick="filtrarStockBajo()") ⚠️ Stock Bajo
+        button.btn.btn-secondary(onclick="mostrarTodos()") 📋 Mostrar Todos
+    
+    #inventarioGrid.inventario-grid
+      p.text-muted Cargando inventario...
+
+block scripts
+  script.
+    let inventario = [];
+    let mostrarSoloStockBajo = false;
+    
+    async function cargarInventario() {
+      try {
+        const token = document.cookie.split('token=')[1]?.split(';')[0];
+        let url = '/api/inventario';
+        if (mostrarSoloStockBajo) {
+          url += '?alerta_stock=true';
+        }
+        
+        const response = await fetch(url, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          inventario = data.inventario;
+          renderInventario();
+        }
+      } catch (error) {
+        console.error('Error al cargar inventario:', error);
+      }
+    }
+    
+    function renderInventario() {
+      const grid = document.getElementById('inventarioGrid');
+      
+      if (inventario.length === 0) {
+        grid.innerHTML = '<p class="text-muted">No hay items en el inventario</p>';
+        return;
+      }
+      
+      grid.innerHTML = inventario.map(item => {
+        const porcentaje = (item.cantidad_actual / item.stock_minimo) * 100;
+        const alerta = item.cantidad_actual <= item.stock_minimo;
+        
+        return `
+          <div class="inventario-card ${alerta ? 'alerta' : ''}">
+            <div class="inventario-header">
+              <h3>${item.nombre}</h3>
+              ${alerta ? '<span class="badge badge-error">⚠️ Stock Bajo</span>' : ''}
+            </div>
+            <div class="inventario-body">
+              <p>${item.descripcion || ''}</p>
+              <div class="inventario-stats">
+                <div class="stat">
+                  <span class="stat-label">Cantidad Actual</span>
+                  <span class="stat-value ${alerta ? 'text-error' : ''}">${item.cantidad_actual} ${item.unidad_medida}</span>
+                </div>
+                <div class="stat">
+                  <span class="stat-label">Stock Mínimo</span>
+                  <span class="stat-value">${item.stock_minimo} ${item.unidad_medida}</span>
+                </div>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill ${alerta ? 'bg-error' : 'bg-success'}" style="width: ${Math.min(porcentaje, 100)}%"></div>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+    
+    function filtrarStockBajo() {
+      mostrarSoloStockBajo = true;
+      cargarInventario();
+    }
+    
+    function mostrarTodos() {
+      mostrarSoloStockBajo = false;
+      cargarInventario();
+    }
+    
+    cargarInventario();
+
+style.
+  .inventario-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+  }
+  .inventario-card {
+    background: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: all 0.3s;
+  }
+  .inventario-card.alerta {
+    border-left: 4px solid #e74c3c;
+  }
+  .inventario-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+  .inventario-header h3 {
+    margin: 0;
+    font-size: 1.2rem;
+  }
+  .inventario-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin: 1rem 0;
+  }
+  .stat {
+    display: flex;
+    flex-direction: column;
+  }
+  .stat-label {
+    font-size: 0.85rem;
+    color: #666;
+    margin-bottom: 0.25rem;
+  }
+  .stat-value {
+    font-size: 1.25rem;
+    font-weight: bold;
+  }
+  .text-error {
+    color: #e74c3c;
+  }
+  .progress-bar {
+    width: 100%;
+    height: 8px;
+    background: #eee;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-top: 1rem;
+  }
+  .progress-fill {
+    height: 100%;
+    transition: width 0.3s;
+  }
+  .bg-success {
+    background: #27ae60;
+  }
+  .bg-error {
+    background: #e74c3c;
+  }
