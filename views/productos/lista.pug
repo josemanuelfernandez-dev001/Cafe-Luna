@@ -1,0 +1,164 @@
+extends ../layout
+
+block styles
+  link(rel="stylesheet", href="/css/productos.css")
+
+block content
+  .productos-lista
+    .header-actions
+      h2 Catálogo de Productos
+      .actions
+        input#searchProductos.search-input(type="text", placeholder="🔍 Buscar producto...")
+        if user.rol === 'admin'
+          a.btn.btn-primary(href="/productos/nuevo") ➕ Nuevo Producto
+    
+    .filter-section
+      button.btn.btn-filter.active(data-categoria="all") Todas
+      button.btn.btn-filter(data-categoria="bebida_caliente") ☕ Bebidas Calientes
+      button.btn.btn-filter(data-categoria="bebida_fria") 🥤 Bebidas Frías
+      button.btn.btn-filter(data-categoria="alimento") 🍽️ Alimentos
+      button.btn.btn-filter(data-categoria="postre") 🍰 Postres
+      button.btn.btn-filter(data-categoria="snack") 🍪 Snacks
+    
+    #productosGrid.productos-grid
+      p.text-muted Cargando productos...
+
+block scripts
+  script(src="/js/productos.js")
+  script.
+    let productos = [];
+    let categoriaActual = 'all';
+    let busqueda = '';
+    
+    // Cargar productos
+    async function cargarProductos() {
+      try {
+        const token = document.cookie.split('token=')[1]?.split(';')[0];
+        const response = await fetch('/api/productos', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          productos = data.productos;
+          renderProductos();
+        }
+      } catch (error) {
+        console.error('Error al cargar productos:', error);
+      }
+    }
+    
+    // Renderizar productos
+    function renderProductos() {
+      const grid = document.getElementById('productosGrid');
+      
+      let productosFiltrados = productos;
+      
+      // Filtrar por categoría
+      if (categoriaActual !== 'all') {
+        productosFiltrados = productosFiltrados.filter(p => p.categoria === categoriaActual);
+      }
+      
+      // Filtrar por búsqueda
+      if (busqueda) {
+        productosFiltrados = productosFiltrados.filter(p => 
+          p.nombre.toLowerCase().includes(busqueda.toLowerCase())
+        );
+      }
+      
+      if (productosFiltrados.length === 0) {
+        grid.innerHTML = '<p class="text-muted">No se encontraron productos</p>';
+        return;
+      }
+      
+      grid.innerHTML = productosFiltrados.map(producto => `
+        <div class="producto-card ${!producto.disponible ? 'no-disponible' : ''}">
+          <div class="producto-imagen">
+            ${producto.imagen_url 
+              ? `<img src="${producto.imagen_url}" alt="${producto.nombre}">` 
+              : '<div class="producto-placeholder">🍽️</div>'
+            }
+          </div>
+          <div class="producto-info">
+            <h3>${producto.nombre}</h3>
+            <p class="producto-descripcion">${producto.descripcion || ''}</p>
+            <div class="producto-footer">
+              <span class="producto-precio">$${parseFloat(producto.precio).toFixed(2)}</span>
+              <span class="badge badge-${producto.categoria}">${formatearCategoria(producto.categoria)}</span>
+            </div>
+            ${!producto.disponible ? '<span class="badge badge-error">No Disponible</span>' : ''}
+          </div>
+          ${esAdmin() ? `
+            <div class="producto-actions">
+              <button class="btn btn-sm btn-primary" onclick="editarProducto('${producto.id}')">✏️ Editar</button>
+              <button class="btn btn-sm btn-${producto.disponible ? 'warning' : 'success'}" 
+                      onclick="toggleDisponibilidad('${producto.id}', ${!producto.disponible})">
+                ${producto.disponible ? '🚫 Deshabilitar' : '✅ Habilitar'}
+              </button>
+            </div>
+          ` : ''}
+        </div>
+      `).join('');
+    }
+    
+    // Formatear categoría
+    function formatearCategoria(categoria) {
+      const categorias = {
+        'bebida_caliente': 'Bebida Caliente',
+        'bebida_fria': 'Bebida Fría',
+        'alimento': 'Alimento',
+        'postre': 'Postre',
+        'snack': 'Snack'
+      };
+      return categorias[categoria] || categoria;
+    }
+    
+    // Verificar si es admin
+    function esAdmin() {
+      return '#{user.rol}' === 'admin';
+    }
+    
+    // Toggle disponibilidad
+    async function toggleDisponibilidad(id, disponible) {
+      try {
+        const token = document.cookie.split('token=')[1]?.split(';')[0];
+        const response = await fetch(`/api/productos/${id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ disponible })
+        });
+        
+        if (response.ok) {
+          cargarProductos();
+        } else {
+          alert('Error al actualizar producto');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Error al actualizar producto');
+      }
+    }
+    
+    // Filtros por categoría
+    document.querySelectorAll('.btn-filter').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.btn-filter').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        categoriaActual = btn.dataset.categoria;
+        renderProductos();
+      });
+    });
+    
+    // Búsqueda
+    document.getElementById('searchProductos').addEventListener('input', (e) => {
+      busqueda = e.target.value;
+      renderProductos();
+    });
+    
+    // Cargar al inicio
+    cargarProductos();

@@ -1,0 +1,207 @@
+extends ../layout
+
+block content
+  .reportes-ventas
+    h2 Reporte de Ventas Diarias
+    
+    .report-controls
+      .form-group
+        label(for="fecha") Seleccionar Fecha
+        input#fecha.form-control(type="date", value=new Date().toISOString().split('T')[0])
+      button.btn.btn-primary(onclick="cargarReporte()") 📊 Generar Reporte
+    
+    #reporteContainer
+      p.text-muted Selecciona una fecha y haz clic en "Generar Reporte"
+
+block scripts
+  script(src="/js/reportes.js")
+  script.
+    async function cargarReporte() {
+      const fecha = document.getElementById('fecha').value;
+      if (!fecha) {
+        alert('Por favor selecciona una fecha');
+        return;
+      }
+      
+      try {
+        const token = document.cookie.split('token=')[1]?.split(';')[0];
+        const response = await fetch(`/api/reportes/ventas-diarias?fecha=${fecha}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          renderReporte(data);
+        } else {
+          alert('Error al cargar reporte');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Error al cargar reporte');
+      }
+    }
+    
+    function renderReporte(data) {
+      const container = document.getElementById('reporteContainer');
+      
+      container.innerHTML = `
+        <div class="reporte-seccion">
+          <h3>Resumen del día ${data.fecha}</h3>
+          <div class="metricas-grid">
+            <div class="metrica-card">
+              <div class="metrica-icon">💰</div>
+              <div class="metrica-info">
+                <span class="metrica-label">Total Ventas</span>
+                <span class="metrica-valor">$${data.metricas.total_ventas.toFixed(2)}</span>
+              </div>
+            </div>
+            <div class="metrica-card">
+              <div class="metrica-icon">📋</div>
+              <div class="metrica-info">
+                <span class="metrica-label">Pedidos</span>
+                <span class="metrica-valor">${data.metricas.cantidad_pedidos}</span>
+              </div>
+            </div>
+            <div class="metrica-card">
+              <div class="metrica-icon">🎯</div>
+              <div class="metrica-info">
+                <span class="metrica-label">Ticket Promedio</span>
+                <span class="metrica-valor">$${data.metricas.ticket_promedio.toFixed(2)}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="reporte-seccion">
+          <h3>Ventas por Origen</h3>
+          <div class="tabla-container">
+            <table class="tabla-reporte">
+              <thead>
+                <tr>
+                  <th>Origen</th>
+                  <th>Cantidad</th>
+                  <th>Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${Object.entries(data.por_origen).map(([origen, datos]) => `
+                  <tr>
+                    <td>${formatearOrigen(origen)}</td>
+                    <td>${datos.cantidad}</td>
+                    <td>$${datos.total.toFixed(2)}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        
+        <div class="reporte-seccion">
+          <h3>Top 10 Productos Más Vendidos</h3>
+          <div class="tabla-container">
+            <table class="tabla-reporte">
+              <thead>
+                <tr>
+                  <th>Producto</th>
+                  <th>Cantidad</th>
+                  <th>Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${data.top_productos.map(prod => `
+                  <tr>
+                    <td>${prod.nombre}</td>
+                    <td>${prod.cantidad}</td>
+                    <td>$${prod.total.toFixed(2)}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    }
+    
+    function formatearOrigen(origen) {
+      const origenes = {
+        'mostrador': 'Mostrador',
+        'uber_eats': 'Uber Eats',
+        'rappi': 'Rappi',
+        'didi_food': 'Didi Food'
+      };
+      return origenes[origen] || origen;
+    }
+
+style.
+  .report-controls {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-end;
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+  .reporte-seccion {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    margin-bottom: 1.5rem;
+  }
+  .reporte-seccion h3 {
+    margin-bottom: 1rem;
+    color: #2c3e50;
+  }
+  .metricas-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+  }
+  .metrica-card {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 8px;
+    color: white;
+  }
+  .metrica-icon {
+    font-size: 2.5rem;
+  }
+  .metrica-info {
+    display: flex;
+    flex-direction: column;
+  }
+  .metrica-label {
+    font-size: 0.9rem;
+    opacity: 0.9;
+  }
+  .metrica-valor {
+    font-size: 1.8rem;
+    font-weight: bold;
+  }
+  .tabla-container {
+    overflow-x: auto;
+  }
+  .tabla-reporte {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .tabla-reporte th,
+  .tabla-reporte td {
+    padding: 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+  }
+  .tabla-reporte th {
+    background: #f8f9fa;
+    font-weight: 600;
+    color: #2c3e50;
+  }
+  .tabla-reporte tbody tr:hover {
+    background: #f8f9fa;
+  }

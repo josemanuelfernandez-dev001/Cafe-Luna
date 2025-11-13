@@ -1,0 +1,86 @@
+extends ../layout
+
+block styles
+  link(rel="stylesheet", href="/css/productos.css")
+
+block content
+  .productos-formulario
+    h2 Nuevo Producto
+    
+    form#formProducto
+      .form-row
+        .form-group
+          label(for="nombre") Nombre *
+          input#nombre.form-control(type="text", name="nombre", required, placeholder="Ej: Café Americano")
+        
+        .form-group
+          label(for="precio") Precio *
+          input#precio.form-control(type="number", name="precio", step="0.01", min="0", required, placeholder="0.00")
+      
+      .form-row
+        .form-group
+          label(for="categoria") Categoría *
+          select#categoria.form-control(name="categoria", required)
+            option(value="") Seleccionar...
+            option(value="bebida_caliente") ☕ Bebida Caliente
+            option(value="bebida_fria") 🥤 Bebida Fría
+            option(value="alimento") 🍽️ Alimento
+            option(value="postre") 🍰 Postre
+            option(value="snack") 🍪 Snack
+        
+        .form-group
+          label(for="disponible") Disponible
+          select#disponible.form-control(name="disponible")
+            option(value="true", selected) Sí
+            option(value="false") No
+      
+      .form-group
+        label(for="descripcion") Descripción
+        textarea#descripcion.form-control(name="descripcion", rows="3", placeholder="Descripción del producto")
+      
+      .form-group
+        label(for="imagen_url") URL de Imagen
+        input#imagen_url.form-control(type="url", name="imagen_url", placeholder="https://ejemplo.com/imagen.jpg")
+        p.text-small.text-muted Opcional: URL de la imagen del producto
+      
+      .form-actions
+        button.btn.btn-primary(type="submit") 💾 Guardar Producto
+        a.btn.btn-secondary(href="/productos") ❌ Cancelar
+
+block scripts
+  script.
+    document.getElementById('formProducto').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const formData = {
+        nombre: document.getElementById('nombre').value,
+        precio: parseFloat(document.getElementById('precio').value),
+        categoria: document.getElementById('categoria').value,
+        descripcion: document.getElementById('descripcion').value,
+        imagen_url: document.getElementById('imagen_url').value || null,
+        disponible: document.getElementById('disponible').value === 'true'
+      };
+      
+      try {
+        const token = document.cookie.split('token=')[1]?.split(';')[0];
+        const response = await fetch('/api/productos', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify(formData)
+        });
+        
+        if (response.ok) {
+          alert('Producto creado exitosamente');
+          window.location.href = '/productos';
+        } else {
+          const error = await response.json();
+          alert('Error: ' + (error.error || 'No se pudo crear el producto'));
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Error al crear producto');
+      }
+    });

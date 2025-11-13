@@ -1,0 +1,63 @@
+extends ../layout
+
+block styles
+  link(rel="stylesheet", href="/css/pedidos.css")
+
+block content
+  .pedidos-crear
+    h2 Crear Nuevo Pedido
+    
+    form#formCrearPedido
+      .form-section
+        h3 Información del Pedido
+        
+        .form-row
+          .form-group
+            label(for="tipo") Tipo de Pedido *
+            select#tipo.form-control(name="tipo", required)
+              option(value="mostrador") Mostrador
+              option(value="uber_eats") Uber Eats
+              option(value="rappi") Rappi
+              option(value="didi_food") Didi Food
+          
+          .form-group
+            label(for="cliente_nombre") Nombre del Cliente
+            input#cliente_nombre.form-control(type="text", name="cliente_nombre", placeholder="Nombre del cliente")
+        
+        .form-row
+          .form-group
+            label(for="cliente_telefono") Teléfono
+            input#cliente_telefono.form-control(type="tel", name="cliente_telefono", placeholder="Teléfono")
+          
+          .form-group
+            label(for="numero_externo") Número Externo (Apps)
+            input#numero_externo.form-control(type="text", name="numero_externo", placeholder="Número de la app")
+        
+        .form-group
+          label(for="direccion") Dirección de Entrega
+          textarea#direccion.form-control(name="direccion", rows="2", placeholder="Solo para pedidos de apps")
+        
+        .form-group
+          label(for="observaciones") Observaciones
+          textarea#observaciones.form-control(name="observaciones", rows="2", placeholder="Observaciones especiales")
+      
+      .form-section
+        h3 Productos
+        
+        #productosContainer
+          p.text-muted Cargando productos...
+        
+        #itemsSeleccionados.items-seleccionados
+          h4 Items Seleccionados
+          #listaItems
+            p.text-muted No hay items seleccionados
+          
+          .total-section
+            h3 Total: $<span id="totalPedido">0.00</span>
+      
+      .form-actions
+        button.btn.btn-primary(type="submit") 💾 Crear Pedido
+        a.btn.btn-secondary(href="/pedidos/cola") ❌ Cancelar
+
+block scripts
+  script(src="/js/pedidos.js")

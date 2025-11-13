@@ -1,0 +1,30 @@
+extends layout
+
+block styles
+  link(rel="stylesheet", href="/css/login.css")
+
+block content
+  .login-container
+    .login-card
+      .login-header
+        h1 ☕ Café Luna
+        p Sistema de Gestión Interna
+      
+      form#loginForm.login-form
+        .form-group
+          label(for="email") Email
+          input#email.form-control(type="email", name="email", required, placeholder="tu@email.com")
+        
+        .form-group
+          label(for="password") Contraseña
+          input#password.form-control(type="password", name="password", required, placeholder="••••••••")
+        
+        .form-group
+          button.btn.btn-primary(type="submit") Iniciar Sesión
+        
+        #errorMessage.error-message(style="display: none;")
+      
+      .login-footer
+        p.text-muted Credenciales de prueba:
+        p.text-small admin@cafeluna.com / password123
+        p.text-small carlos@cafeluna.com / password123

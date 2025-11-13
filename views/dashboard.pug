@@ -1,0 +1,99 @@
+extends layout
+
+block styles
+  link(rel="stylesheet", href="/css/dashboard.css")
+
+block content
+  .dashboard
+    h2 Dashboard
+    
+    .stats-grid
+      .stat-card
+        .stat-icon 📋
+        .stat-info
+          h3 Pedidos Hoy
+          p#statPedidosHoy.stat-value Cargando...
+      
+      .stat-card
+        .stat-icon 💰
+        .stat-info
+          h3 Ventas Hoy
+          p#statVentasHoy.stat-value Cargando...
+      
+      .stat-card
+        .stat-icon ⏱️
+        .stat-info
+          h3 En Preparación
+          p#statEnPreparacion.stat-value Cargando...
+      
+      .stat-card
+        .stat-icon ✅
+        .stat-info
+          h3 Completados
+          p#statCompletados.stat-value Cargando...
+    
+    .dashboard-content
+      .section
+        h3 Pedidos Recientes
+        #pedidosRecientes.pedidos-list
+          p.text-muted Cargando pedidos...
+      
+      .section
+        h3 Acciones Rápidas
+        .action-buttons
+          a.btn.btn-primary(href="/pedidos/crear") ➕ Crear Pedido
+          a.btn.btn-secondary(href="/pedidos/cola") 📋 Ver Cola
+          a.btn.btn-secondary(href="/productos") 🍰 Ver Productos
+
+block scripts
+  script.
+    // Cargar estadísticas del dashboard
+    document.addEventListener('DOMContentLoaded', async () => {
+      try {
+        const hoy = new Date().toISOString().split('T')[0];
+        
+        // Obtener pedidos del día
+        const resPedidos = await fetch(`/api/pedidos?fecha=${hoy}`, {
+          headers: {
+            'Authorization': `Bearer ${document.cookie.split('token=')[1]?.split(';')[0]}`
+          }
+        });
+        
+        if (resPedidos.ok) {
+          const { pedidos } = await resPedidos.json();
+          
+          // Calcular estadísticas
+          const totalPedidos = pedidos.length;
+          const enPreparacion = pedidos.filter(p => p.estado === 'en_preparacion' || p.estado === 'pendiente').length;
+          const completados = pedidos.filter(p => p.estado === 'entregado').length;
+          const totalVentas = pedidos
+            .filter(p => p.estado === 'entregado' || p.estado === 'listo')
+            .reduce((sum, p) => sum + parseFloat(p.total), 0);
+          
+          // Actualizar UI
+          document.getElementById('statPedidosHoy').textContent = totalPedidos;
+          document.getElementById('statVentasHoy').textContent = `$${totalVentas.toFixed(2)}`;
+          document.getElementById('statEnPreparacion').textContent = enPreparacion;
+          document.getElementById('statCompletados').textContent = completados;
+          
+          // Mostrar pedidos recientes
+          const pedidosRecientesEl = document.getElementById('pedidosRecientes');
+          if (pedidos.length > 0) {
+            const pedidosRecientes = pedidos.slice(0, 5);
+            pedidosRecientesEl.innerHTML = pedidosRecientes.map(pedido => `
+              <div class="pedido-item">
+                <div class="pedido-info">
+                  <strong>${pedido.numero_pedido}</strong>
+                  <span class="badge badge-${pedido.estado}">${pedido.estado}</span>
+                </div>
+                <div class="pedido-total">$${parseFloat(pedido.total).toFixed(2)}</div>
+              </div>
+            `).join('');
+          } else {
+            pedidosRecientesEl.innerHTML = '<p class="text-muted">No hay pedidos hoy</p>';
+          }
+        }
+      } catch (error) {
+        console.error('Error al cargar estadísticas:', error);
+      }
+    });

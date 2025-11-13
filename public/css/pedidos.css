@@ -1,0 +1,260 @@
+/* Estilos para pedidos */
+.pedidos-crear h2,
+.pedidos-cola h2 {
+  color: #6F4E37;
+  margin-bottom: 2rem;
+}
+
+/* Formulario de crear pedido */
+.form-section {
+  background: white;
+  border-radius: 10px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.form-section h3 {
+  margin-bottom: 1.5rem;
+  color: #6F4E37;
+  border-bottom: 2px solid #D4A574;
+  padding-bottom: 0.5rem;
+}
+
+#productosContainer {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.producto-selector {
+  background: white;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.producto-selector:hover {
+  border-color: #6F4E37;
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.producto-selector.selected {
+  border-color: #6F4E37;
+  background: #f8f5f1;
+}
+
+.items-seleccionados {
+  background: white;
+  border-radius: 10px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.items-seleccionados h4 {
+  margin-bottom: 1rem;
+  color: #6F4E37;
+}
+
+#listaItems {
+  margin-bottom: 1rem;
+}
+
+.item-seleccionado {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  border-bottom: 1px solid #eee;
+}
+
+.item-seleccionado:last-child {
+  border-bottom: none;
+}
+
+.total-section {
+  background: linear-gradient(135deg, #6F4E37 0%, #5a3e2b 100%);
+  color: white;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-top: 1rem;
+}
+
+.total-section h3 {
+  margin: 0;
+  text-align: right;
+}
+
+/* Cola de pedidos */
+.filter-buttons {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.btn-filter {
+  padding: 0.5rem 1rem;
+  background: white;
+  border: 2px solid #ddd;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-filter.active,
+.btn-filter:hover {
+  background: #6F4E37;
+  color: white;
+  border-color: #6F4E37;
+}
+
+.cola-pedidos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.pedido-card {
+  background: white;
+  border-radius: 10px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  transition: all 0.3s;
+  border-left: 4px solid #27ae60;
+}
+
+.pedido-card.normal {
+  border-left-color: #27ae60;
+}
+
+.pedido-card.advertencia {
+  border-left-color: #f39c12;
+  background: #fffbf0;
+}
+
+.pedido-card.urgente {
+  border-left-color: #e74c3c;
+  background: #fff5f5;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+  50% {
+    box-shadow: 0 4px 16px rgba(231, 76, 60, 0.3);
+  }
+}
+
+.pedido-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid #eee;
+}
+
+.pedido-header h3 {
+  margin: 0;
+  color: #6F4E37;
+}
+
+.pedido-body {
+  margin-bottom: 1rem;
+}
+
+.pedido-body p {
+  margin: 0.5rem 0;
+}
+
+.observaciones {
+  background: #f8f9fa;
+  padding: 0.5rem;
+  border-radius: 5px;
+  font-style: italic;
+  border-left: 3px solid #3498db;
+}
+
+.pedido-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+/* Modal */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid #eee;
+}
+
+.modal-header h3 {
+  margin: 0;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #95a5a6;
+}
+
+.modal-close:hover {
+  color: #2c3e50;
+}
+
+.modal-body {
+  padding: 1.5rem;
+}
+
+.modal-footer {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  padding: 1.5rem;
+  border-top: 1px solid #eee;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  #productosContainer {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  }
+  
+  .cola-pedidos {
+    grid-template-columns: 1fr;
+  }
+}
