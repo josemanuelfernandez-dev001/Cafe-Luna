@@ -100,6 +100,7 @@ Puedes iniciar sesión con cualquiera de estos usuarios:
 | carlos@cafeluna.com | password123 | Barista | Crear pedidos, productos |
 | ana@cafeluna.com | password123 | Barista | Crear pedidos, productos |
 | roberto@cafeluna.com | password123 | Cocina | Actualizar estado pedidos |
+| laura@cafeluna.com | password123 | Mesero | Crear/ver pedidos |
 
 ## 📖 Funcionalidades por Rol
 
@@ -119,6 +120,11 @@ Puedes iniciar sesión con cualquiera de estos usuarios:
 ### 🍳 Cocina
 - ✅ Ver cola de pedidos
 - ✅ Actualizar estado de pedidos
+- ✅ Ver productos
+
+### 🧑‍💼 Mesero
+- ✅ Crear pedidos
+- ✅ Ver cola de pedidos
 - ✅ Ver productos
 
 ## 🔗 Endpoints API Principales

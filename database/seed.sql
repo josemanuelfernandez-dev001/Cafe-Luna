@@ -5,12 +5,13 @@
 -- TRUNCATE TABLE movimientos_inventario, historial_pedidos, pedido_items, pedidos, inventario, productos, usuarios CASCADE;
 
 -- Insertar usuarios de prueba
--- Contraseña para todos: password123 (hash bcrypt)
+-- Contraseña para todos: password123 (hash bcrypt cost=10)
 INSERT INTO usuarios (id, nombre, email, password_hash, rol, activo) VALUES
-('11111111-1111-1111-1111-111111111111', 'Admin Principal', 'admin@cafeluna.com', '$2a$10$rV8yZJQfJKxPmKvXYqKqPOYnJZxKK.Yx0K0K7L5Y1Y2Y3Y4Y5Y6Y7', 'admin', true),
-('22222222-2222-2222-2222-222222222222', 'Carlos Barista', 'carlos@cafeluna.com', '$2a$10$rV8yZJQfJKxPmKvXYqKqPOYnJZxKK.Yx0K0K7L5Y1Y2Y3Y4Y5Y6Y7', 'barista', true),
-('33333333-3333-3333-3333-333333333333', 'Ana Barista', 'ana@cafeluna.com', '$2a$10$rV8yZJQfJKxPmKvXYqKqPOYnJZxKK.Yx0K0K7L5Y1Y2Y3Y4Y5Y6Y7', 'barista', true),
-('44444444-4444-4444-4444-444444444444', 'Roberto Cocina', 'roberto@cafeluna.com', '$2a$10$rV8yZJQfJKxPmKvXYqKqPOYnJZxKK.Yx0K0K7L5Y1Y2Y3Y4Y5Y6Y7', 'cocina', true);
+('11111111-1111-1111-1111-111111111111', 'Admin Principal', 'admin@cafeluna.com', '$2a$10$OsmG5eYMwF5L0ia02GUx6u5QrsdN2IQrM5SLitVXxg5jPVgcI0qmu', 'admin', true),
+('22222222-2222-2222-2222-222222222222', 'Carlos Barista', 'carlos@cafeluna.com', '$2a$10$OsmG5eYMwF5L0ia02GUx6u5QrsdN2IQrM5SLitVXxg5jPVgcI0qmu', 'barista', true),
+('33333333-3333-3333-3333-333333333333', 'Ana Barista', 'ana@cafeluna.com', '$2a$10$OsmG5eYMwF5L0ia02GUx6u5QrsdN2IQrM5SLitVXxg5jPVgcI0qmu', 'barista', true),
+('44444444-4444-4444-4444-444444444444', 'Roberto Cocina', 'roberto@cafeluna.com', '$2a$10$OsmG5eYMwF5L0ia02GUx6u5QrsdN2IQrM5SLitVXxg5jPVgcI0qmu', 'cocina', true),
+('55555555-5555-5555-5555-555555555555', 'Laura Mesero', 'laura@cafeluna.com', '$2a$10$OsmG5eYMwF5L0ia02GUx6u5QrsdN2IQrM5SLitVXxg5jPVgcI0qmu', 'mesero', true);
 
 -- Insertar productos de prueba
 INSERT INTO productos (id, nombre, descripcion, precio, categoria, disponible) VALUES
@@ -110,10 +111,7 @@ INSERT INTO movimientos_inventario (inventario_id, tipo_movimiento, cantidad_ant
 ('i2222222-2222-2222-2222-222222222222', 'entrada', 20.0, 30.0, 'Reposición semanal', '11111111-1111-1111-1111-111111111111'),
 ('i1111111-1111-1111-1111-111111111111', 'salida', 50.0, 45.0, 'Consumo diario', '22222222-2222-2222-2222-222222222222');
 
--- Actualizar contraseñas con el hash correcto para 'password123'
--- $2a$10$8K1p/pEbHNpPYZvC3T0CJ.e4FRbNJ.1hK4XPRZ9VqC/QGOPvKHPbm
-
-UPDATE usuarios SET password_hash = '$2a$10$8K1p/pEbHNpPYZvC3T0CJ.e4FRbNJ.1hK4XPRZ9VqC/QGOPvKHPbm';
+-- Las contraseñas ya están correctamente hasheadas en la inserción inicial
 
 -- Mensajes de confirmación
 SELECT 'Datos de prueba insertados exitosamente' AS status;
