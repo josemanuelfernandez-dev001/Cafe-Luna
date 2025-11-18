@@ -194,5 +194,7 @@ block scripts
     // Cargar pedidos al inicio
     cargarPedidos();
     
-    // Recargar cada 30 segundos
-    setInterval(cargarPedidos, 30000);
+    // Suscribirse a cambios en tiempo real
+    suscribirCambiosPedidos((payload) => {
+      console.log('Pedido actualizado:', payload);
+    });
