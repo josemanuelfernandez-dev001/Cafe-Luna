@@ -1,7 +1,7 @@
 const supabase = require('../config/supabase');
 
 /**
- * Reporte de ventas diarias
+ * Reporte de ventas diarias con desglose por hora
  */
 const ventasDiarias = async (req, res) => {
   try {
@@ -40,6 +40,19 @@ const ventasDiarias = async (req, res) => {
     const totalVentas = pedidos.reduce((sum, pedido) => sum + parseFloat(pedido.total), 0);
     const cantidadPedidos = pedidos.length;
     const ticketPromedio = cantidadPedidos > 0 ? totalVentas / cantidadPedidos : 0;
+
+    // Desglose por hora
+    const ventasPorHora = Array.from({ length: 24 }, (_, i) => ({
+      hora: i,
+      cantidad: 0,
+      total: 0
+    }));
+
+    pedidos.forEach(pedido => {
+      const hora = new Date(pedido.created_at).getHours();
+      ventasPorHora[hora].cantidad++;
+      ventasPorHora[hora].total += parseFloat(pedido.total);
+    });
 
     // Desglose por origen
     const porOrigen = pedidos.reduce((acc, pedido) => {
@@ -91,6 +104,26 @@ const ventasDiarias = async (req, res) => {
       .slice(0, 10)
       .map(([nombre, datos]) => ({ nombre, ...datos }));
 
+    // Comparación con día anterior
+    const fechaAnterior = new Date(fecha);
+    fechaAnterior.setDate(fechaAnterior.getDate() - 1);
+    const fechaAnteriorStr = fechaAnterior.toISOString().split('T')[0];
+
+    const { data: pedidosAyer } = await supabase
+      .from('pedidos')
+      .select('total')
+      .gte('created_at', `${fechaAnteriorStr}T00:00:00`)
+      .lt('created_at', `${fechaAnteriorStr}T23:59:59`)
+      .in('estado', ['listo', 'entregado']);
+
+    const totalAyer = pedidosAyer ? pedidosAyer.reduce((sum, p) => sum + parseFloat(p.total), 0) : 0;
+    const comparacion = {
+      fecha_anterior: fechaAnteriorStr,
+      total_anterior: parseFloat(totalAyer.toFixed(2)),
+      diferencia: parseFloat((totalVentas - totalAyer).toFixed(2)),
+      porcentaje: totalAyer > 0 ? parseFloat(((totalVentas - totalAyer) / totalAyer * 100).toFixed(2)) : 0
+    };
+
     res.json({
       fecha,
       metricas: {
@@ -98,9 +131,11 @@ const ventasDiarias = async (req, res) => {
         cantidad_pedidos: cantidadPedidos,
         ticket_promedio: parseFloat(ticketPromedio.toFixed(2))
       },
+      ventas_por_hora: ventasPorHora.filter(h => h.cantidad > 0),
       por_origen: porOrigen,
       por_categoria: porCategoria,
       top_productos: topProductos,
+      comparacion,
       pedidos
     });
 
