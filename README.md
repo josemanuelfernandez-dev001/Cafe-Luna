@@ -1,5 +1,12 @@
 # ☕ Café Luna - Sistema de Gestión Interna
 
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![Node](https://img.shields.io/badge/node-%3E%3D16.0.0-brightgreen.svg)
+![Express](https://img.shields.io/badge/express-4.18.2-lightgrey.svg)
+![Supabase](https://img.shields.io/badge/supabase-latest-green.svg)
+![Tests](https://img.shields.io/badge/tests-passing-brightgreen.svg)
+![Coverage](https://img.shields.io/badge/coverage-70%25-yellow.svg)
+
 Sistema completo de gestión para cafetería desarrollado con Node.js, Express, Pug y Supabase.
 
 ## 📋 Descripción
