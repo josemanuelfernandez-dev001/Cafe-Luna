@@ -13,12 +13,10 @@ jest.mock('../config/supabase', () => ({
 }));
 
 // Mock del middleware de autenticación (admin)
-jest.mock('../middleware/auth.middleware', () => ({
-  verificarToken: (req, res, next) => {
-    req.user = { id: 'user-123', rol: 'admin' };
-    next();
-  }
-}));
+jest.mock('../middleware/auth.middleware', () => (req, res, next) => {
+  req.user = { id: 'user-123', rol: 'admin' };
+  next();
+});
 
 const supabase = require('../config/supabase');
 

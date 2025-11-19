@@ -622,6 +622,24 @@ Obtener detalle de un usuario específico.
 
 **Permisos:** `admin` únicamente
 
+**Respuesta exitosa (200):**
+```json
+{
+  "usuario": {
+    "id": "uuid",
+    "email": "carlos@cafeluna.com",
+    "nombre": "Carlos Barista",
+    "rol": "barista",
+    "activo": true,
+    "created_at": "2025-01-01T00:00:00Z"
+  }
+}
+```
+
+**Errores:**
+- `404` - Usuario no encontrado
+- `403` - Sin permisos
+
 ---
 
 ### Crear Usuario
@@ -641,6 +659,30 @@ Crear un nuevo usuario.
 }
 ```
 
+**Campos requeridos:**
+- `email` - Email único y válido
+- `password` - Mínimo 8 caracteres
+- `nombre` - Nombre completo
+- `rol` - Uno de: admin, barista, cocina, mesero
+
+**Respuesta exitosa (201):**
+```json
+{
+  "message": "Usuario creado exitosamente",
+  "usuario": {
+    "id": "uuid",
+    "email": "nuevo@cafeluna.com",
+    "nombre": "Nuevo Usuario",
+    "rol": "barista",
+    "activo": true
+  }
+}
+```
+
+**Errores:**
+- `400` - Datos inválidos o email ya existe
+- `403` - Sin permisos
+
 ---
 
 ### Actualizar Usuario
@@ -649,6 +691,36 @@ Actualizar un usuario existente.
 **Endpoint:** `PUT /api/usuarios/:id`
 
 **Permisos:** `admin` únicamente
+
+**Body (todos los campos opcionales):**
+```json
+{
+  "email": "newemail@cafeluna.com",
+  "password": "newpassword123",
+  "nombre": "Nombre Actualizado",
+  "rol": "admin",
+  "activo": false
+}
+```
+
+**Respuesta exitosa (200):**
+```json
+{
+  "message": "Usuario actualizado exitosamente",
+  "usuario": {
+    "id": "uuid",
+    "email": "newemail@cafeluna.com",
+    "nombre": "Nombre Actualizado",
+    "rol": "admin",
+    "activo": false
+  }
+}
+```
+
+**Errores:**
+- `400` - Datos inválidos
+- `403` - Sin permisos
+- `404` - Usuario no encontrado
 
 ---
 
