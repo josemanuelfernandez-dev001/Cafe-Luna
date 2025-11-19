@@ -155,9 +155,103 @@ const actualizarUsuario = async (req, res) => {
   }
 };
 
+/**
+ * Cambiar contraseña (Solo Admin o el mismo usuario)
+ */
+const cambiarPassword = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { password } = req.body;
+    
+    // Verificar que el usuario es admin o es el mismo usuario
+    if (req.user.rol !== 'admin' && req.user.id !== id) {
+      return res.status(403).json({ error: 'No tienes permisos para cambiar esta contraseña' });
+    }
+
+    if (!password || password.length < 6) {
+      return res.status(400).json({ error: 'La contraseña debe tener al menos 6 caracteres' });
+    }
+
+    // Hash de la nueva contraseña
+    const password_hash = await bcrypt.hash(password, 10);
+
+    const { data: usuario, error } = await supabase
+      .from('usuarios')
+      .update({
+        password_hash,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', id)
+      .select('id, nombre, email')
+      .single();
+
+    if (error) {
+      console.error('Error al cambiar contraseña:', error);
+      return res.status(500).json({ error: 'Error al cambiar contraseña' });
+    }
+
+    if (!usuario) {
+      return res.status(404).json({ error: 'Usuario no encontrado' });
+    }
+
+    res.json({
+      message: 'Contraseña actualizada exitosamente',
+      usuario
+    });
+
+  } catch (error) {
+    console.error('Error en cambiarPassword:', error);
+    res.status(500).json({ error: 'Error al cambiar contraseña' });
+  }
+};
+
+/**
+ * Desactivar/Activar usuario (Solo Admin)
+ */
+const toggleActivarUsuario = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { activo } = req.body;
+
+    if (activo === undefined) {
+      return res.status(400).json({ error: 'El campo activo es requerido' });
+    }
+
+    const { data: usuario, error } = await supabase
+      .from('usuarios')
+      .update({
+        activo,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', id)
+      .select('id, nombre, email, rol, activo')
+      .single();
+
+    if (error) {
+      console.error('Error al cambiar estado del usuario:', error);
+      return res.status(500).json({ error: 'Error al cambiar estado del usuario' });
+    }
+
+    if (!usuario) {
+      return res.status(404).json({ error: 'Usuario no encontrado' });
+    }
+
+    res.json({
+      message: `Usuario ${activo ? 'activado' : 'desactivado'} exitosamente`,
+      usuario
+    });
+
+  } catch (error) {
+    console.error('Error en toggleActivarUsuario:', error);
+    res.status(500).json({ error: 'Error al cambiar estado del usuario' });
+  }
+};
+
 module.exports = {
   listarUsuarios,
   obtenerUsuario,
   crearUsuario,
-  actualizarUsuario
+  actualizarUsuario,
+  cambiarPassword,
+  toggleActivarUsuario
 };

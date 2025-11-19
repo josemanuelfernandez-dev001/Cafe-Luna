@@ -101,7 +101,7 @@ const crearProducto = async (req, res) => {
 };
 
 /**
- * Actualizar producto (Solo Admin)
+ * Actualizar producto completo (Solo Admin) - PUT
  */
 const actualizarProducto = async (req, res) => {
   try {
@@ -145,6 +145,13 @@ const actualizarProducto = async (req, res) => {
 };
 
 /**
+ * Actualizar producto parcial (Solo Admin) - PATCH
+ */
+const actualizarProductoParcial = async (req, res) => {
+  return actualizarProducto(req, res);
+};
+
+/**
  * Eliminar producto (Solo Admin)
  */
 const eliminarProducto = async (req, res) => {
@@ -174,5 +181,6 @@ module.exports = {
   obtenerProducto,
   crearProducto,
   actualizarProducto,
+  actualizarProductoParcial,
   eliminarProducto
 };

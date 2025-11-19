@@ -21,10 +21,16 @@ router.post('/',
   productosController.crearProducto
 );
 
-// PUT /api/productos/:id - Actualizar producto (Solo Admin)
+// PUT /api/productos/:id - Actualizar producto completo (Solo Admin)
 router.put('/:id', 
   checkRole(['admin']),
   productosController.actualizarProducto
+);
+
+// PATCH /api/productos/:id - Actualizar producto parcial (Solo Admin)
+router.patch('/:id', 
+  checkRole(['admin']),
+  productosController.actualizarProductoParcial
 );
 
 // DELETE /api/productos/:id - Eliminar producto (Solo Admin)
