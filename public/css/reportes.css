@@ -1,0 +1,205 @@
+/* Estilos para reportes con gráficos */
+
+.reportes-ventas {
+  padding: 2rem;
+}
+
+.report-controls {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-end;
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.report-controls .form-group {
+  flex: 1;
+  max-width: 300px;
+}
+
+.reporte-seccion {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1.5rem;
+}
+
+.reporte-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.reporte-header h3 {
+  margin: 0;
+  color: #2c3e50;
+}
+
+.comparacion {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.25rem;
+}
+
+.comparacion-label {
+  font-size: 0.85rem;
+  color: #7f8c8d;
+}
+
+.comparacion-valor {
+  font-size: 1.1rem;
+  font-weight: bold;
+}
+
+.comparacion-valor.positivo {
+  color: #27ae60;
+}
+
+.comparacion-valor.negativo {
+  color: #e74c3c;
+}
+
+.metricas-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.metrica-card {
+  display: flex;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 8px;
+  color: white;
+  transition: transform 0.2s;
+}
+
+.metrica-card:hover {
+  transform: translateY(-2px);
+}
+
+.metrica-icon {
+  font-size: 2.5rem;
+}
+
+.metrica-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.metrica-label {
+  font-size: 0.9rem;
+  opacity: 0.9;
+  margin-bottom: 0.25rem;
+}
+
+.metrica-valor {
+  font-size: 1.8rem;
+  font-weight: bold;
+}
+
+.graficos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.grafico-seccion {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.grafico-seccion h3 {
+  margin: 0 0 1rem 0;
+  color: #2c3e50;
+  font-size: 1.1rem;
+}
+
+.grafico-seccion canvas {
+  max-height: 300px;
+}
+
+.tabla-container {
+  overflow-x: auto;
+  margin-top: 1rem;
+}
+
+.tabla-reporte {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tabla-reporte th,
+.tabla-reporte td {
+  padding: 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+.tabla-reporte th {
+  background: #f8f9fa;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.tabla-reporte tbody tr:hover {
+  background: #f8f9fa;
+}
+
+.tabla-reporte td:last-child,
+.tabla-reporte th:last-child {
+  text-align: right;
+}
+
+.tabla-reporte td:first-child {
+  font-weight: bold;
+  color: #8B4513;
+}
+
+@media (max-width: 768px) {
+  .reportes-ventas {
+    padding: 1rem;
+  }
+  
+  .report-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .report-controls .form-group {
+    max-width: 100%;
+  }
+  
+  .graficos-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .metricas-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media print {
+  .report-controls,
+  nav,
+  aside {
+    display: none !important;
+  }
+  
+  .reporte-seccion {
+    box-shadow: none;
+    page-break-inside: avoid;
+  }
+}

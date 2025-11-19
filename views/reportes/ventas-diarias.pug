@@ -1,5 +1,8 @@
 extends ../layout
 
+block styles
+  link(rel="stylesheet", href="/css/reportes.css")
+
 block content
   .reportes-ventas
     h2 Reporte de Ventas Diarias
@@ -14,6 +17,7 @@ block content
       p.text-muted Selecciona una fecha y haz clic en "Generar Reporte"
 
 block scripts
+  script(src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js")
   script(src="/js/reportes.js")
   script.
     async function cargarReporte() {
